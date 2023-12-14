@@ -1,4 +1,4 @@
-# Hangman Game (Jogo da Forca) 
+# Hangman Game (Jogo da Forca)
 # Programação Orientada a Objetos
 
 # Import
@@ -89,62 +89,95 @@ class Hangman:
 
 	# Método para adivinhar a letra
      def tentativa(self,letra):
-          if letra in self.palavra_secreta:
-               self.letras_corretas.add(letra)
+          if letra in self.palavra_secreta and letra not in self.letras_corretas:
+               self.letras_corretas.append(letra)
+          elif letra not in self.palavra_secreta and letra not in self.letras_erradas:
+               self.letras_erradas.append(letra)
           else:
-               self.letras_erradas.add(letra)
+               return False
+          return True
 
 	# Método para verificar se o jogo terminou
      def jogoTerminado(self):
-          return self.verificarVitoria() or self.verificarDerrota()
-	
+          return self.verificarVitoria() or (len(self.letras_erradas) == 6)
+
      # Método para verificar se o jogador venceu
      def verificarVitoria(self):
-          for letra in self.palavra_secreta:
-               if letra not in self.palavra_secreta:
-                    return False
-               else:
-                    return True
-	
-     # Método para verificar derrota
-     def verificarDerrota(self):
-          return len(self.letras_erradas >= 6)
+         
+         if '_' not in self.naoMostrarLetra():
+              return True
+         else:
+              return False
 
 	# Método para não mostrar a letra no board
-     def naoMostrarLetra(self,letra):
-               return letra not in self.letras_corretas
-     	
-	# Método para checar o status do game e imprimir o board na tela
-     
-     def ChecaStatusImprimeBoard(self):
-          palavra_mostrada = ''
-     
+     def naoMostrarLetra(self):
+          rtn = ''
+         
           for letra in self.palavra_secreta:
-               if letra in self.letras_corretas:
-                    palavra_mostrada += letra
+               if letra not in self.letras_corretas:
+                    rtn += ' _ '
                else:
-                    palavra_mostrada += '_'
-     
-          print( 'Palavra: ', palavra_mostrada)
-          print("Letras corretas: ", ", ".join(self.letras_corretas))
-          print("Letras erradas: ", ", ".join(self.letras_erradas))
+                   rtn += letra
+          return rtn
 
-#Jogo em ação
+
+	# Método para checar o status do game e imprimir o board na tela
+     def print_game_status(self):
+          print(board[len(self.letras_erradas)])
+          print('\nPalavra: '+ self.naoMostrarLetra())
+          print('\nLetras erradas: ',)
+
+          for letra in self.letras_erradas:
+               print(letra,)
+          
+          print()
+
+          print('Letras corretas: ',)
+
+          for letra in self.letras_corretas:
+               print(letra,)
+
+          print()
+
+#Método para ler uma palavra aleatória de uma lista pré-determinada
+def rand_palavra():
+     palavras= ['lua','chuva','terra','sol','mar']
+
+     #Escolhe a palavra secreta randomicamente
+     palavra = random.choice(palavras)
+     return palavra
+
+# Método Main - Execução do Programa
 def main():
-     limpa_tela()
-     palavra_secreta = 'Agua'
-     jogo = Hangman(palavra_secreta)
 
-     while not Hangman.jogoTerminado(jogo):
-          jogo.ChecaStatusImprimeBoard()
-          letra = input('Digite uma letra: ')
-          Hangman.tentativa(letra)
+	limpa_tela()
 
-     if jogo.verificarVitoria():
-          print('Parabéns! Você venceu!')
-     else:
-          print('Não foi dessa vez! A palavra era: ',jogo.palavra_secreta)
+	# Cria o objeto e seleciona uma palavra randomicamente
+	jogo = Hangman(rand_palavra())
 
-# Executando o programa
-if __name__ == '__main__':
-     main()
+	# Enquanto o jogo não tiver terminado, print do status, solicita uma letra e faz a leitura do caracter
+	while not jogo.jogoTerminado():
+		
+		#  Status do game
+		jogo.print_game_status()
+		
+		# Recebe input do terminal
+		usuario = input('\nDigite uma letra: ')
+		
+		# Verifica se a letra digitada faz parte da palavra
+		jogo.tentativa(usuario)
+
+	# Verifica o status do jogo
+	jogo.print_game_status()	
+
+	# De acordo com o status, imprime mensagem na tela para o usuário
+	if jogo.verificarVitoria():
+		print ('\nParabéns! Você venceu!!')
+	
+	else:
+		print ('\nGame over! Você perdeu.')
+		print ('A palavra era ' + jogo.palavra_secreta)
+
+# Executa o programa		
+if __name__ == "__main__":
+	main()
